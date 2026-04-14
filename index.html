@@ -16,7 +16,7 @@
         .img-card { border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; text-align: center; padding-bottom: 10px; background: #fafafa; }
         .img-card img { width: 100%; height: 120px; object-fit: cover; }
         .download-btn { display: inline-block; margin-top: 8px; padding: 8px 16px; background: #1976d2; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; }
-        #loading { text-align: center; color: #666; display: none; margin-bottom: 15px; }
+        #loading { text-align: center; color: #666; display: none; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -28,7 +28,7 @@
             <button onclick="fetchImages()">Search Images</button>
         </div>
         
-        <div id="loading">इमेज सर्च कर रहा हूँ...</div>
+        <div id="loading">इमेज सर्च कर रहा हूँ... कृपया प्रतीक्षा करें</div>
         <div class="gallery" id="results"></div>
     </div>
 
@@ -38,7 +38,8 @@
             const resultsDiv = document.getElementById('results');
             const loadingDiv = document.getElementById('loading');
             
-            const apiUrl = "/search"; 
+            // MAIN FIX: यहाँ आपके Cloudflare Worker का लाइव URL होना चाहिए
+            const apiUrl = "https://news-image-tool.babu902654.workers.dev/search"; 
 
             if (!query) {
                 alert("कृपया हेडलाइन डालें!");
@@ -60,16 +61,18 @@
                         card.className = 'img-card';
                         card.innerHTML = `
                             <img src="${item.image}" alt="News Image" onerror="this.style.display='none'">
-                            <a href="${item.image}" target="_blank" download class="download-btn">Download</a>
+                            <a href="${item.image}" target="_blank" download class="download-btn">View / Download</a>
                         `;
                         resultsDiv.appendChild(card);
                     });
                 } else {
-                    resultsDiv.innerHTML = "<p>कोई इमेज नहीं मिली।</p>";
+                    // अगर हिंदी में रिज़ल्ट न मिले तो यूज़र को टिप देना
+                    resultsDiv.innerHTML = "<p style='color:red; text-align:center;'>कोई इमेज नहीं मिली। <br><br><b>टिप:</b> कभी-कभी हिंदी कीवर्ड्स पर रिज़ल्ट नहीं आते, कृपया अंग्रेजी में सर्च करके देखें (जैसे: Narendra Modi)।</p>";
                 }
             } catch (error) {
                 loadingDiv.style.display = "none";
-                resultsDiv.innerHTML = "<p style='color:red;'>सर्वर से कनेक्ट नहीं हो पा रहा है।</p>";
+                resultsDiv.innerHTML = "<p style='color:red; text-align:center;'>सर्वर से कनेक्ट नहीं हो पा रहा है।</p>";
+                console.error(error);
             }
         }
     </script>
