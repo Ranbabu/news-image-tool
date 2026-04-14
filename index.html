@@ -1,93 +1,463 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Image Finder</title>
+    <title>News Image Search Tool</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 15px; }
-        .container { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
-        h2 { color: #d32f2f; text-align: center; margin-top: 0; font-size: 22px; }
-        .search-box { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        input { padding: 14px; border: 1.5px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; }
-        input:focus { border-color: #d32f2f; }
-        button { padding: 14px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .img-card { border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; text-align: center; padding-bottom: 10px; background: #fafafa; }
-        .img-card img { width: 100%; height: 120px; object-fit: cover; }
-        .download-btn { display: inline-block; margin-top: 8px; padding: 8px 16px; background: #1976d2; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; }
-        #loading { text-align: center; color: #666; display: none; margin-bottom: 15px; font-weight: bold; }
-        .error-text { color: red; text-align: center; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .results {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 200px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .image-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            background: #f5f5f5;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-info {
+            padding: 12px;
+            background: white;
+        }
+
+        .image-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .search-box, .results {
+                padding: 15px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h2>News Image Finder</h2>
-        <div class="search-box">
-            <input type="text" id="headline" placeholder="यहाँ न्यूज़ हेडलाइन या कीवर्ड डालें...">
-            <button onclick="fetchImages()">Search Images</button>
+        <div class="header">
+            <h1>📰 News Image Search Tool</h1>
+            <p>Search and download news images</p>
         </div>
-        
-        <div id="loading">इमेज सर्च कर रहा हूँ... कृपया प्रतीक्षा करें</div>
-        <div class="gallery" id="results"></div>
+
+        <div class="search-box">
+            <div class="input-group">
+                <label for="query">Enter Headline / Query</label>
+                <input 
+                    type="text" 
+                    id="query" 
+                    placeholder="e.g., Narendra Modi, Cricket Match, Technology News..."
+                    autocomplete="off"
+                >
+            </div>
+            <div class="button-group">
+                <button class="btn btn-submit" onclick="searchImages()">🔍 Search</button>
+                <button class="btn btn-clear" onclick="clearSearch()">Clear</button>
+            </div>
+            <div id="error-msg"></div>
+        </div>
+
+        <div class="results">
+            <div class="results-header">
+                <h2>🖼️ Images</h2>
+                <span id="result-count"></span>
+            </div>
+            <div id="image-container">
+                <div class="no-results">
+                    <p>Enter a query above to search for images</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        async function fetchImages() {
-            const query = document.getElementById('headline').value.trim();
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById('loading');
-            
-            // यह आपके Cloudflare Worker का एकदम सही लिंक है
-            const apiUrl = "https://news-image-tool.babu902654.workers.dev/search"; 
+        // Hugging Face API URL
+        const API_URL = "https://amina786-image-search-api.hf.space/api/predict";
+        
+        // Alternative: Direct Gradio API
+        const GRADIO_API = "https://amina786-image-search-api.hf.space/run/predict";
+
+        async function searchImages() {
+            const query = document.getElementById('query').value.trim();
+            const container = document.getElementById('image-container');
+            const errorMsg = document.getElementById('error-msg');
+            const resultCount = document.getElementById('result-count');
 
             if (!query) {
-                alert("कृपया कोई नाम या हेडलाइन डालें!");
+                showError('Please enter a search query');
                 return;
             }
 
-            // पुराना रिज़ल्ट हटाकर लोडिंग दिखाना
-            resultsDiv.innerHTML = "";
-            loadingDiv.style.display = "block";
+            // Clear previous errors
+            errorMsg.innerHTML = '';
+            
+            // Show loading
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching images for "${query}"...</p>
+                </div>
+            `;
 
             try {
-                // API को रिक्वेस्ट भेजना
-                const response = await fetch(`${apiUrl}?q=${encodeURIComponent(query)}`);
-                
-                // अगर सर्वर से एरर आए
-                if (!response.ok) {
-                    throw new Error("Server Error");
-                }
+                // Try using the Hugging Face Inference API
+                const response = await fetch('https://api-inference.huggingface.co/models/google/vit-base-patch16-224', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add your Hugging Face token if needed
+                        // 'Authorization': 'Bearer YOUR_HF_TOKEN'
+                    },
+                    body: JSON.stringify({ inputs: query })
+                });
 
-                const data = await response.json();
+                // For demo purposes, using a sample image search
+                // In production, replace with actual API call
+                const images = await performImageSearch(query);
                 
-                // लोडिंग छुपाना
-                loadingDiv.style.display = "none";
-
-                if (data && data.length > 0) {
-                    // इमेजेज को स्क्रीन पर दिखाना
-                    data.forEach(item => {
-                        const card = document.createElement('div');
-                        card.className = 'img-card';
-                        card.innerHTML = `
-                            <img src="${item.image}" alt="News Image" onerror="this.style.display='none'">
-                            <a href="${item.image}" target="_blank" class="download-btn">View / Download</a>
-                        `;
-                        resultsDiv.appendChild(card);
-                    });
+                if (images.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <p>No images found for "${query}"</p>
+                        </div>
+                    `;
+                    resultCount.textContent = '';
                 } else {
-                    // अगर इमेजेज न मिलें
-                    resultsDiv.innerHTML = "<p class='error-text'>कोई इमेज नहीं मिली। <br><br>सुझाव: कृपया अंग्रेजी में लिखकर सर्च करें (जैसे: Narendra Modi)।</p>";
+                    displayImages(images);
+                    resultCount.textContent = `${images.length} images found`;
                 }
+
             } catch (error) {
-                // अगर कनेक्ट न हो पाए
-                loadingDiv.style.display = "none";
-                resultsDiv.innerHTML = "<p class='error-text'>सर्वर से कनेक्ट नहीं हो पा रहा है। <br><small>कृपया थोड़ी देर बाद प्रयास करें।</small></p>";
-                console.error("Fetch Error: ", error);
+                console.error('Error:', error);
+                showError('Failed to search images. Please try again.');
+                container.innerHTML = `
+                    <div class="no-results">
+                        <p>Something went wrong. Please try again.</p>
+                    </div>
+                `;
             }
         }
-    </script>
 
+        async function performImageSearch(query) {
+            // Using Unsplash API for demo (free, no key required for demo)
+            // Replace with actual Hugging Face API endpoint
+            try {
+                const response = await fetch(
+                    `https://source.unsplash.com/featured/?${encodeURIComponent(query)}`
+                );
+                
+                // For actual implementation, use proper image search API
+                // This is a placeholder - replace with real API
+                return generateMockImages(query);
+                
+            } catch (error) {
+                return generateMockImages(query);
+            }
+        }
+
+        function generateMockImages(query) {
+            // Mock data - replace with actual API response
+            const mockImages = [
+                {
+                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&1`,
+                    title: `${query} - Image 1`,
+                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&1`
+                },
+                {
+                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&2`,
+                    title: `${query} - Image 2`,
+                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&2`
+                },
+                {
+                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&3`,
+                    title: `${query} - Image 3`,
+                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&3`
+                }
+            ];
+            return mockImages;
+        }
+
+        function displayImages(images) {
+            const container = document.getElementById('image-container');
+            container.innerHTML = '<div class="image-grid"></div>';
+            const grid = container.querySelector('.image-grid');
+
+            images.forEach((image, index) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.innerHTML = `
+                    <img src="${image.url}" alt="${image.title}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                    <div class="image-info">
+                        <div class="image-title">${image.title}</div>
+                        <button class="download-btn" onclick="downloadImage('${image.download}', '${image.title}')">
+                            ⬇️ Download
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function downloadImage(url, filename) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `${filename.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+                
+            } catch (error) {
+                // Fallback: open in new tab
+                window.open(url, '_blank');
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('query').value = '';
+            document.getElementById('image-container').innerHTML = `
+                <div class="no-results">
+                    <p>Enter a query above to search for images</p>
+                </div>
+            `;
+            document.getElementById('result-count').textContent = '';
+            document.getElementById('error-msg').innerHTML = '';
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.innerHTML = `<div class="error">${message}</div>`;
+            setTimeout(() => {
+                errorMsg.innerHTML = '';
+            }, 5000);
+        }
+
+        // Allow Enter key to search
+        document.getElementById('query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchImages();
+            }
+        });
+    </script>
 </body>
 </html>
+
