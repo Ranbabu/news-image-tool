@@ -9,7 +9,6 @@ export default {
       });
     }
 
-    // DuckDuckGo Search Fetching
     const ddgUrl = `https://duckduckgo.com/pd/?q=${encodeURIComponent(query)}&kl=wt-wt`;
     const response = await fetch(ddgUrl);
     const data = await response.json();
