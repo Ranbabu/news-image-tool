@@ -12,34 +12,34 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            padding: 15px;
         }
 
         .header h1 {
             font-size: 28px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 8px;
         }
 
         .search-box {
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             margin-bottom: 20px;
         }
 
@@ -47,21 +47,18 @@
             margin-bottom: 15px;
         }
 
-        .input-group label {
-            display: block;
+        .input-group label {            display: block;
             color: #555;
             font-weight: 600;
             margin-bottom: 8px;
-            font-size: 14px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 15px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
 
         .input-group input:focus {
@@ -69,56 +66,76 @@
             border-color: #667eea;
         }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
         .btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 15px 20px;
+            width: 100%;
+            padding: 14px;
             border: none;
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            margin-bottom: 10px;
             transition: all 0.3s;
         }
 
-        .btn-submit {
+        .btn-search {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
         }
 
-        .btn-submit:hover {
+        .btn-search:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
         }
 
-        .btn-clear {
-            background: #e0e0e0;
-            color: #555;
+        .btn-search:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
-        .btn-clear:hover {
-            background: #d0d0d0;
+        .btn-clear {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .status-msg {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .status-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .status-info {
+            background: #eef;
+            color: #33c;
+            border: 1px solid #ccf;
         }
 
         .results {
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            min-height: 200px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
 
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
             gap: 10px;
         }
@@ -128,44 +145,37 @@
             font-size: 20px;
         }
 
+        .count {            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+
         .image-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
         }
 
         .image-card {
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            background: #f5f5f5;
-        }
-
-        .image-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            background: #f8f8f8;
         }
 
         .image-card img {
             width: 100%;
-            height: 200px;
+            height: 180px;
             object-fit: cover;
             display: block;
+            background: #e0e0e0;
         }
 
         .image-info {
             padding: 12px;
             background: white;
-        }
-
-        .image-title {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         .download-btn {
@@ -177,25 +187,19 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .download-btn:hover {
-            opacity: 0.9;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 50px 20px;
             color: #666;
         }
-
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
         }
@@ -205,45 +209,60 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            text-align: center;
-        }
-
         .no-results {
             text-align: center;
-            padding: 40px;
+            padding: 50px 20px;
             color: #999;
         }
 
+        .examples {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .examples h3 {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .example-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .example-tag {
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .example-tag:hover {
+            background: #667eea;
+            color: white;        }
+
+        .debug-info {
+            background: #222;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            margin-top: 10px;
+            display: none;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .search-box, .results {
-                padding: 15px;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .image-grid {
-                grid-template-columns: 1fr;
-            }
+            .header h1 { font-size: 22px; }
+            .search-box, .results { padding: 15px; }
+            .image-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -251,7 +270,7 @@
     <div class="container">
         <div class="header">
             <h1>📰 News Image Search Tool</h1>
-            <p>Search and download news images</p>
+            <p>Search and download news images instantly</p>
         </div>
 
         <div class="search-box">
@@ -260,23 +279,37 @@
                 <input 
                     type="text" 
                     id="query" 
-                    placeholder="e.g., Narendra Modi, Cricket Match, Technology News..."
+                    placeholder="e.g., Narendra Modi, Cricket..."
                     autocomplete="off"
                 >
             </div>
-            <div class="button-group">
-                <button class="btn btn-submit" onclick="searchImages()">🔍 Search</button>
-                <button class="btn btn-clear" onclick="clearSearch()">Clear</button>
+            
+            <button class="btn btn-search" id="searchBtn" onclick="searchImages()">
+                🔍 Search
+            </button>
+            <button class="btn btn-clear" onclick="clearAll()">
+                Clear
+            </button>
+            
+            <div id="statusMsg" class="status-msg"></div>
+            <div id="debugInfo" class="debug-info"></div>            
+            <div class="examples">
+                <h3>Examples:</h3>
+                <div class="example-tags">
+                    <span class="example-tag" onclick="useExample('Narendra Modi')">Narendra Modi</span>
+                    <span class="example-tag" onclick="useExample('India Cricket Team')">India Cricket Team</span>
+                    <span class="example-tag" onclick="useExample('Technology News')">Technology News</span>
+                    <span class="example-tag" onclick="useExample('Space Mission')">Space Mission</span>
+                </div>
             </div>
-            <div id="error-msg"></div>
         </div>
 
         <div class="results">
             <div class="results-header">
-                <h2>🖼️ Images</h2>
-                <span id="result-count"></span>
+                <h2>🖼️ Search Results</h2>
+                <span class="count" id="count" style="display:none">0 images</span>
             </div>
-            <div id="image-container">
+            <div id="container">
                 <div class="no-results">
                     <p>Enter a query above to search for images</p>
                 </div>
@@ -285,26 +318,57 @@
     </div>
 
     <script>
-        // Hugging Face API URL
-        const API_URL = "https://amina786-image-search-api.hf.space/api/predict";
+        // Configuration
+        const HF_SPACE_URL = "https://amina786-image-search-api.hf.space";
+        const API_ENDPOINT = `${HF_SPACE_URL}/run/predict`;
         
-        // Alternative: Direct Gradio API
-        const GRADIO_API = "https://amina786-image-search-api.hf.space/run/predict";
+        let debugMessages = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMsg = `[${timestamp}] ${message}`;
+            debugMessages.push(logMsg);
+            console.log(logMsg);
+            
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.style.display = 'block';
+            debugDiv.textContent = debugMessages.join('\n');
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+
+        function showStatus(message, type = 'error') {
+            const statusDiv = document.getElementById('statusMsg');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-msg status-${type}`;
+            statusDiv.style.display = 'block';
+                        setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 8000);
+        }
 
         async function searchImages() {
             const query = document.getElementById('query').value.trim();
-            const container = document.getElementById('image-container');
-            const errorMsg = document.getElementById('error-msg');
-            const resultCount = document.getElementById('result-count');
+            const searchBtn = document.getElementById('searchBtn');
+            const container = document.getElementById('container');
+            const count = document.getElementById('count');
+
+            // Clear previous
+            document.getElementById('statusMsg').style.display = 'none';
+            debugMessages = [];
+            document.getElementById('debugInfo').style.display = 'none';
 
             if (!query) {
-                showError('Please enter a search query');
+                showStatus('❌ Please enter a search query', 'error');
                 return;
             }
 
-            // Clear previous errors
-            errorMsg.innerHTML = '';
-            
+            log(`Starting search for: "${query}"`);
+            log(`API Endpoint: ${API_ENDPOINT}`);
+
+            // Disable button
+            searchBtn.disabled = true;
+            searchBtn.textContent = '⏳ Searching...';
+
             // Show loading
             container.innerHTML = `
                 <div class="loading">
@@ -314,150 +378,176 @@
             `;
 
             try {
-                // Try using the Hugging Face Inference API
-                const response = await fetch('https://api-inference.huggingface.co/models/google/vit-base-patch16-224', {
+                log('Sending request to API...');
+                
+                // Test if API is accessible
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        // Add your Hugging Face token if needed
-                        // 'Authorization': 'Bearer YOUR_HF_TOKEN'
                     },
-                    body: JSON.stringify({ inputs: query })
+                    body: JSON.stringify({
+                         [query],                        fn_index: 0
+                    }),
+                    signal: controller.signal
                 });
 
-                // For demo purposes, using a sample image search
-                // In production, replace with actual API call
-                const images = await performImageSearch(query);
-                
-                if (images.length === 0) {
+                clearTimeout(timeoutId);
+                log(`Response status: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                log(`Response content-type: ${contentType}`);
+
+                const result = await response.json();
+                log(`Response received: ${JSON.stringify(result).substring(0, 200)}...`);
+
+                const images = result.data?.[0] || [];
+                log(`Images found: ${images.length}`);
+
+                if (!images || images.length === 0) {
                     container.innerHTML = `
                         <div class="no-results">
                             <p>No images found for "${query}"</p>
+                            <p style="margin-top:10px;font-size:13px;color:#999">Try a different query</p>
                         </div>
                     `;
-                    resultCount.textContent = '';
+                    count.style.display = 'none';
+                    showStatus('⚠️ No images found', 'error');
                 } else {
                     displayImages(images);
-                    resultCount.textContent = `${images.length} images found`;
+                    count.textContent = `${images.length} images found`;
+                    count.style.display = 'block';
+                    showStatus(`✅ Found ${images.length} images!`, 'success');
                 }
 
             } catch (error) {
-                console.error('Error:', error);
-                showError('Failed to search images. Please try again.');
+                log(`ERROR: ${error.message}`);
+                log(`Error type: ${error.name}`);
+                
+                console.error('Search error:', error);
+                
+                let errorMsg = 'Failed to search images. ';
+                
+                if (error.name === 'AbortError') {
+                    errorMsg += 'Request timed out (30s). The API might be slow or down.';
+                } else if (error.message.includes('CORS')) {
+                    errorMsg += 'CORS error - The API might not allow browser requests.';
+                } else if (error.message.includes('404')) {                    errorMsg += 'API endpoint not found (404). Check if the Space is running.';
+                } else if (error.message.includes('503')) {
+                    errorMsg += 'Service unavailable (503). The Space might be loading.';
+                }
+                
+                showStatus('❌ ' + errorMsg, 'error');
+                
                 container.innerHTML = `
                     <div class="no-results">
-                        <p>Something went wrong. Please try again.</p>
+                        <p>⚠️ Search Failed</p>
+                        <p style="margin-top:10px;font-size:13px;color:#999">
+                            Error: ${error.message}<br><br>
+                            <a href="${HF_SPACE_URL}" target="_blank" style="color:#667eea">
+                                Check if Space is running →
+                            </a>
+                        </p>
                     </div>
                 `;
+                count.style.display = 'none';
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Search';
             }
-        }
-
-        async function performImageSearch(query) {
-            // Using Unsplash API for demo (free, no key required for demo)
-            // Replace with actual Hugging Face API endpoint
-            try {
-                const response = await fetch(
-                    `https://source.unsplash.com/featured/?${encodeURIComponent(query)}`
-                );
-                
-                // For actual implementation, use proper image search API
-                // This is a placeholder - replace with real API
-                return generateMockImages(query);
-                
-            } catch (error) {
-                return generateMockImages(query);
-            }
-        }
-
-        function generateMockImages(query) {
-            // Mock data - replace with actual API response
-            const mockImages = [
-                {
-                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&1`,
-                    title: `${query} - Image 1`,
-                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&1`
-                },
-                {
-                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&2`,
-                    title: `${query} - Image 2`,
-                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&2`
-                },
-                {
-                    url: `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}&3`,
-                    title: `${query} - Image 3`,
-                    download: `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}&3`
-                }
-            ];
-            return mockImages;
         }
 
         function displayImages(images) {
-            const container = document.getElementById('image-container');
+            const container = document.getElementById('container');
             container.innerHTML = '<div class="image-grid"></div>';
             const grid = container.querySelector('.image-grid');
 
-            images.forEach((image, index) => {
+            images.forEach((img, idx) => {
                 const card = document.createElement('div');
                 card.className = 'image-card';
+                
+                const timestamp = Date.now() + idx;
+                const imgUrl = `${img}${img.includes('?') ? '&' : '?'}t=${timestamp}`;
+                
                 card.innerHTML = `
-                    <img src="${image.url}" alt="${image.title}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                    <img src="${imgUrl}" 
+                         alt="Image ${idx + 1}" 
+                         onerror="this.onerror=null; this.parentElement.style.display='none';"
+                         loading="lazy">
                     <div class="image-info">
-                        <div class="image-title">${image.title}</div>
-                        <button class="download-btn" onclick="downloadImage('${image.download}', '${image.title}')">
+                        <button class="download-btn" onclick="downloadImage('${img}', 'image_${idx + 1}')">
                             ⬇️ Download
                         </button>
                     </div>
                 `;
                 grid.appendChild(card);
-            });
-        }
+            });        }
 
         async function downloadImage(url, filename) {
             try {
+                event.target.textContent = '⏳...';
+                event.target.disabled = true;
+
                 const response = await fetch(url);
                 const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
+                const blobUrl = URL.createObjectURL(blob);
                 
                 const a = document.createElement('a');
                 a.href = blobUrl;
-                a.download = `${filename.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpg`;
+                a.download = `${filename}.jpg`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                window.URL.revokeObjectURL(blobUrl);
+                URL.revokeObjectURL(blobUrl);
                 
-            } catch (error) {
-                // Fallback: open in new tab
+                event.target.textContent = '✅ Done';
+                setTimeout(() => {
+                    event.target.textContent = '⬇️ Download';
+                    event.target.disabled = false;
+                }, 2000);
+                
+            } catch (err) {
                 window.open(url, '_blank');
+                event.target.textContent = '⬇️ Download';
+                event.target.disabled = false;
             }
         }
 
-        function clearSearch() {
+        function useExample(text) {
+            document.getElementById('query').value = text;
+            searchImages();
+        }
+
+        function clearAll() {
             document.getElementById('query').value = '';
-            document.getElementById('image-container').innerHTML = `
+            document.getElementById('container').innerHTML = `
                 <div class="no-results">
                     <p>Enter a query above to search for images</p>
                 </div>
             `;
-            document.getElementById('result-count').textContent = '';
-            document.getElementById('error-msg').innerHTML = '';
+            document.getElementById('count').style.display = 'none';
+            document.getElementById('statusMsg').style.display = 'none';
+            document.getElementById('debugInfo').style.display = 'none';
+            debugMessages = [];
         }
+        // Enter key to search
+        document.getElementById('query').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchImages();
+        });
 
-        function showError(message) {
-            const errorMsg = document.getElementById('error-msg');
-            errorMsg.innerHTML = `<div class="error">${message}</div>`;
-            setTimeout(() => {
-                errorMsg.innerHTML = '';
-            }, 5000);
-        }
-
-        // Allow Enter key to search
-        document.getElementById('query').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchImages();
-            }
+        // Page load
+        window.addEventListener('load', () => {
+            log('Page loaded successfully');
+            log(`Hugging Face Space: ${HF_SPACE_URL}`);
+            document.getElementById('query').focus();
         });
     </script>
 </body>
 </html>
-
