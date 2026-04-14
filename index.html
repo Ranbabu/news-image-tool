@@ -3,70 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Image Finder - Aryan News</title>
+    <title>News Image Finder</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; text-align: center; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 30px; }
-        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        input:focus { border-color: #1a73e8; }
-        button { padding: 12px 25px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1557b0; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .img-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.3s; border: 1px solid #eee; }
-        .img-card:hover { transform: translateY(-5px); }
-        .img-card img { width: 100%; height: 180px; object-fit: cover; }
-        .card-body { padding: 10px; text-align: center; }
-        .download-btn { display: inline-block; padding: 8px 15px; background: #34a853; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 15px; 
+        }
+        .container { 
+            background: #ffffff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        h2 { 
+            color: #d32f2f; 
+            text-align: center; 
+            margin-top: 0; 
+            font-size: 22px;
+        }
+        .search-box { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+        input { 
+            padding: 14px; 
+            border: 1.5px solid #ccc; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            outline: none; 
+        }
+        input:focus {
+            border-color: #d32f2f;
+        }
+        button { 
+            padding: 14px; 
+            background: #d32f2f; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 12px; 
+        }
+        .img-card { 
+            border: 1px solid #eaeaea; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            text-align: center; 
+            padding-bottom: 10px; 
+            background: #fafafa;
+        }
+        .img-card img { 
+            width: 100%; 
+            height: 120px; 
+            object-fit: cover; 
+        }
+        .download-btn { 
+            display: inline-block; 
+            margin-top: 8px; 
+            padding: 8px 16px; 
+            background: #1976d2; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-size: 14px; 
+        }
+        #loading {
+            text-align: center;
+            color: #666;
+            display: none;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>News Channel Image Search</h2>
-    <div class="search-box">
-        <input type="text" id="headline" placeholder="News Headline यहाँ डालें (e.g. Technology News)...">
-        <button onclick="fetchImages()">Search</button>
+    <div class="container">
+        <h2>News Image Finder</h2>
+        <div class="search-box">
+            <input type="text" id="headline" placeholder="यहाँ न्यूज़ हेडलाइन डालें...">
+            <button onclick="fetchImages()">Search Images</button>
+        </div>
+        
+        <div id="loading">इमेज सर्च कर रहा हूँ...</div>
+        <div class="gallery" id="results"></div>
     </div>
 
-    <div class="gallery" id="results">
-        </div>
-</div>
+    <script>
+        async function fetchImages() {
+            const query = document.getElementById('headline').value;
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            
+            const apiUrl = "https://news-image-tool.babu902654.workers.dev"; 
 
-<script>
-    async function fetchImages() {
-        const query = document.getElementById('headline').value;
-        const resultsDiv = document.getElementById('results');
-        
-        // आपका Cloudflare Worker URL यहाँ आएगा (Step 2 के बाद)
-        const workerUrl = "https://your-worker-name.workers.dev"; 
-
-        if(!query) return alert("कृपया हेडलाइन डालें");
-
-        resultsDiv.innerHTML = "<p style='text-align:center; width:100%;'>Searching images...</p>";
-
-        try {
-            const response = await fetch(`${workerUrl}?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
+            if (!query) {
+                alert("कृपया हेडलाइन डालें!");
+                return;
+            }
 
             resultsDiv.innerHTML = "";
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'img-card';
-                card.innerHTML = `
-                    <img src="${item.image}" onerror="this.src='https://via.placeholder.com/250x180?text=No+Image'">
-                    <div class="card-body">
-                        <a href="${item.image}" target="_blank" class="download-btn">Open / Download</a>
-                    </div>
-                `;
-                resultsDiv.appendChild(card);
-            });
-        } catch (error) {
-            resultsDiv.innerHTML = "<p style='color:red;'>Error fetching images. Please check Worker URL.</p>";
+            loadingDiv.style.display = "block";
+
+            try {
+                const response = await fetch(`${apiUrl}?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                loadingDiv.style.display = "none";
+
+                if(data && data.length > 0) {
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'img-card';
+                        card.innerHTML = `
+                            <img src="${item.image}" alt="News Image" onerror="this.style.display='none'">
+                            <a href="${item.image}" target="_blank" download class="download-btn">Download</a>
+                        `;
+                        resultsDiv.appendChild(card);
+                    });
+                } else {
+                    resultsDiv.innerHTML = "<p>कोई इमेज नहीं मिली।</p>";
+                }
+            } catch (error) {
+                loadingDiv.style.display = "none";
+                resultsDiv.innerHTML = "<p style='color:red;'>सर्वर से कनेक्ट नहीं हो पा रहा है।</p>";
+            }
         }
-    }
-</script>
+    </script>
 
 </body>
 </html>
