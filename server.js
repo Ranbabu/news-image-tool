@@ -6,6 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.json()); // POST डेटा पढ़ने के लिए
 
 // सुरक्षा के लिए: IP Tracking (5 सेकंड का टाइमर)
 const requestIPs = new Map();
@@ -15,12 +16,9 @@ const rateLimiter = (req, res, next) => {
     const now = Date.now();
     const cooldownTime = 5000;
 
-    if (requestIPs.has(ip)) {
-        if (now - requestIPs.get(ip) < cooldownTime) {
-            return res.status(429).json({ error: 'आपने बहुत जल्दी रिक्वेस्ट की है। कृपया 5 सेकंड रुकें।' });
-        }
+    if (requestIPs.has(ip) && (now - requestIPs.get(ip) < cooldownTime)) {
+        return res.status(429).json({ error: 'आपने बहुत जल्दी रिक्वेस्ट की है। कृपया 5 सेकंड रुकें।' });
     }
-    
     requestIPs.set(ip, now);
     next();
 };
@@ -29,23 +27,24 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 🧠 स्मार्ट फ़िल्टर: हेडलाइन से फालतू शब्द और निशान हटाने का फंक्शन
+// 🧠 अल्ट्रा-स्मार्ट फ़िल्टर: हेडलाइन से फालतू शब्द हटाना
 function smartKeywordExtractor(text) {
-    // कॉमा, फुलस्टॉप और अन्य निशानों को हटाना
     let cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()।]/g," ");
     
-    // हिंदी के वो शब्द जो सर्च को खराब करते हैं (Stop words)
-    const stopWords = ['में', 'है', 'के', 'की', 'और', 'या', 'का', 'को', 'से', 'पर', 'ने', 'लिए', 'तथा', 'एक', 'इस', 'कि', 'वह', 'यह', 'तो', 'भी', 'वाले', 'वाली'];
+    // मैंने इसमें न्यूज़ वाले आम शब्द (ऐलान, किया, गया, हुआ) भी जोड़ दिए हैं
+    const stopWords = [
+        'में', 'है', 'के', 'की', 'और', 'या', 'का', 'को', 'से', 'पर', 'ने', 'लिए', 
+        'तथा', 'एक', 'इस', 'कि', 'वह', 'यह', 'तो', 'भी', 'वाले', 'वाली', 
+        'ऐलान', 'किया', 'गया', 'गई', 'हुई', 'हुआ', 'रहे', 'रहा', 'Intro', 'Outro', 'सारांश', 'चैनल', 'अपील'
+    ];
     
     let words = cleanText.split(/\s+/);
-    
-    // सिर्फ मेन कीवर्ड्स को बचाना
-    let keywords = words.filter(word => word.trim().length > 1 && !stopWords.includes(word.trim()));
+    let keywords = words.filter(word => word.trim().length > 1 && !stopWords.includes(word.trim()) && !stopWords.includes(word.trim().toLowerCase()));
     
     return keywords.join(" ").trim();
 }
 
-// 🌐 Bing से इमेज निकालने का मुख्य फंक्शन
+// 🌐 Bing इमेज API फंक्शन
 async function getBingImages(searchQuery) {
     try {
         const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery)}&form=HDRSC2`;
@@ -65,15 +64,14 @@ async function getBingImages(searchQuery) {
         while ((match = imgRegex.exec(html)) !== null) {
             images.push(match[0]);
         }
-
-        return [...new Set(images)].map(url => ({ image: url, url: url }));
+        return [...new Set(images)]; // डुप्लीकेट हटाना
     } catch (e) {
         console.error("Bing Fetch Error:", e);
         return [];
     }
 }
 
-// इमेज सर्च के लिए API रूट
+// 🚀 GET रिक्वेस्ट - सिंगल सर्च के लिए (3-Step Magic Fallback के साथ)
 app.get('/api/search', rateLimiter, async (req, res) => {
   const q = req.query.q;
 
@@ -82,27 +80,30 @@ app.get('/api/search', rateLimiter, async (req, res) => {
   }
 
   try {
-    // Step 1: सबसे पहले जो यूजर ने डाला है, उसी पूरी लाइन से सर्च करें
+    // Step 1: सबसे पहले जो यूजर ने डाला है, उसी से सर्च करें
     let uniqueImages = await getBingImages(q);
 
-    // Step 2: अगर पूरी लाइन से कोई इमेज नहीं मिली, तो "स्मार्ट फ़िल्टर" चालू करें
+    // Step 2: अगर कुछ नहीं मिला, तो "स्मार्ट फ़िल्टर" (फालतू शब्द हटाकर) ट्राई करें
     if (uniqueImages.length === 0) {
-        const smartQuery = smartKeywordExtractor(q); // फालतू शब्द हटाए
-        
-        // अगर स्मार्ट कीवर्ड मूल शब्द से अलग है, तो दोबारा सर्च करें
+        let smartQuery = smartKeywordExtractor(q); 
         if (smartQuery && smartQuery !== q) {
             uniqueImages = await getBingImages(smartQuery);
         }
+
+        // Step 3 (अंतिम उपाय): अगर फिर भी कुछ नहीं मिला, तो सिर्फ शुरू के 2-3 शब्द उठाएं (Broad Search)
+        if (uniqueImages.length === 0 && smartQuery.split(' ').length > 2) {
+            // "भारत नई शिक्षा नीति" को काटकर सिर्फ "भारत शिक्षा" कर देगा
+            let ultraBroadQuery = smartQuery.split(' ').slice(0, 2).join(' ');
+            uniqueImages = await getBingImages(ultraBroadQuery);
+        }
     }
 
-    // Step 3: अगर अभी भी कुछ नहीं मिला
     if (uniqueImages.length === 0) {
        return res.json({ error: "इस हेडलाइन से जुड़ी कोई इमेज नहीं मिली। कृपया कोई छोटा कीवर्ड ट्राई करें।" });
     }
 
-    // रिस्पॉन्स भेजना
     res.json({
-      results: uniqueImages.slice(0, 30),
+      results: uniqueImages.slice(0, 30).map(url => ({ image: url, url: url })),
       total: uniqueImages.slice(0, 30).length,
       query: q
     });
@@ -110,6 +111,69 @@ app.get('/api/search', rateLimiter, async (req, res) => {
   } catch (err) {
     console.error('Server Error:', err);
     res.status(500).json({ error: 'सर्वर एरर, कृपया थोड़ी देर बाद प्रयास करें।' });
+  }
+});
+
+// 🚀 POST रिक्वेस्ट - मल्टी-लाइन टेक्स्ट (News Studio Pro) के लिए
+app.post('/api/search', rateLimiter, async (req, res) => {
+  const fullText = req.body.q;
+
+  if (!fullText) {
+    return res.status(400).json({ error: 'कृपया न्यूज़ की स्क्रिप्ट डालें' });
+  }
+
+  try {
+    const lines = fullText.split(/[\n।]/);
+    let allFinalImages = [];
+    let validQueriesCount = 0;
+
+    for (let line of lines) {
+        let cleanLine = line.trim();
+        
+        if (cleanLine.length < 5 || cleanLine.toLowerCase().includes('intro') || cleanLine.toLowerCase().includes('outro')) {
+            continue; 
+        }
+
+        if (validQueriesCount >= 6) break; 
+        validQueriesCount++;
+
+        // Step 1: Full Line
+        let imagesList = await getBingImages(cleanLine);
+
+        // Step 2: Smart Filter
+        if (imagesList.length === 0) {
+            let smartQuery = smartKeywordExtractor(cleanLine);
+            if (smartQuery) {
+                imagesList = await getBingImages(smartQuery);
+            }
+            
+            // Step 3: Broad Search (सिर्फ शुरू के 2 शब्द)
+            if (imagesList.length === 0 && smartQuery.split(' ').length > 2) {
+                let ultraBroadQuery = smartQuery.split(' ').slice(0, 2).join(' ');
+                imagesList = await getBingImages(ultraBroadQuery);
+            }
+        }
+
+        let formattedImages = imagesList.slice(0, 12).map(url => ({ 
+            image: url, 
+            sourceQuery: cleanLine 
+        }));
+
+        allFinalImages = allFinalImages.concat(formattedImages);
+    }
+
+    if (allFinalImages.length === 0) {
+       return res.json({ error: "इस स्क्रिप्ट से जुड़ी कोई इमेज नहीं मिली। कीवर्ड्स बदल कर देखें।" });
+    }
+
+    res.json({
+      results: allFinalImages,
+      total: allFinalImages.length
+    });
+
+  } catch (err) {
+    console.error('Server Error:', err);
+    res.status(500).json({ error: 'सर्वर एरर, कृपया थोड़ी देर बाद प्रयास करें।' });
   }
 });
 
