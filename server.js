@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// मुख्य पेज के लिए रूट - आपकी HTML फाइल लोड करेगा
+// मुख्य पेज के लिए रूट
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -21,40 +21,43 @@ app.get('/api/search', async (req, res) => {
   }
 
   try {
-    // Google Vercel को ब्लॉक कर देता है, 
-    // इसलिए हम Yahoo/Bing Images का इस्तेमाल कर रहे हैं (जो बेहतरीन और तेज़ काम करता है)
-    const searchUrl = `https://images.search.yahoo.com/search/images?p=${encodeURIComponent(q)}`;
+    // हम Bing Images का इस्तेमाल कर रहे हैं (यह हिंदी न्यूज़ के लिए बेस्ट है और ब्लॉक नहीं होता)
+    const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&form=HDRSC2`;
     
-    // Node.js के नेटिव fetch का इस्तेमाल कर रहे हैं
+    // Bing से डेटा मँगवा रहे हैं
     const response = await fetch(searchUrl, {
         headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language': 'hi-IN,hi;q=0.9,en-US;q=0.8,en;q=0.7' // हिंदी रिज़ल्ट्स को प्राथमिकता
         }
     });
 
     const html = await response.text();
 
-    // HTML कोड में से इमेजेस के लिंक निकालना
-    const regex = /<img[^>]+src="([^">]+)"/g;
+    // Magic Regex: यह कोड बिना किसी रुकावट के सीधे Bing के सर्वर से इमेजेस के लिंक निकाल लेता है
+    const imgRegex = /https:\/\/tse[0-9]\.mm\.bing\.net\/th\?id=[^&"'\s]+/g;
+    
     let match;
     let images = [];
 
-    while ((match = regex.exec(html)) !== null) {
-        let imgUrl = match[1];
-        // सिर्फ असली न्यूज़ इमेजेस लेना (वेबसाइट के लोगो आदि को हटाना)
-        if (imgUrl.startsWith('http') && !imgUrl.includes('yahoo.com') && !imgUrl.includes('clear.gif')) {
-            images.push({ image: imgUrl, url: imgUrl });
-        }
+    // HTML में जहाँ-जहाँ इमेज मिलेगी, उसे लिस्ट में डाल देंगे
+    while ((match = imgRegex.exec(html)) !== null) {
+        let imgUrl = match[0];
+        images.push(imgUrl);
     }
 
     // एक जैसी (Duplicate) इमेजेस को हटाना
-    const uniqueImages = Array.from(new Set(images.map(a => a.image)))
-        .map(image => ({ image: image, url: image }));
+    const uniqueImages = [...new Set(images)].map(url => ({ image: url, url: url }));
 
-    // रिस्पॉन्स भेजना
+    // अगर कोई इमेज नहीं मिलती है
+    if (uniqueImages.length === 0) {
+       return res.json({ error: "इस हेडलाइन से जुड़ी कोई इमेज नहीं मिली। कोई दूसरा कीवर्ड ट्राई करें।" });
+    }
+
+    // रिस्पॉन्स भेजना (टॉप 30 इमेजेस)
     res.json({
-      results: uniqueImages.slice(0, 50), // टॉप 50 इमेजेस
-      total: uniqueImages.slice(0, 50).length,
+      results: uniqueImages.slice(0, 30),
+      total: uniqueImages.slice(0, 30).length,
       query: q
     });
 
