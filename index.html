@@ -10,11 +10,12 @@
         button { padding: 12px 25px; font-size: 16px; background-color: #d32f2f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         #image-container { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; gap: 15px; }
         img { max-width: 100%; width: 320px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); object-fit: cover; }
+        .error { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2>ताज़ा न्यूज़ तस्वीरें खोजें</h2>
+    <h2>आर्यन न्यूज़ टेक - ताज़ा तस्वीरें खोजें</h2>
     <input type="text" id="newsHeadline" placeholder="हिंदी न्यूज़ हेडलाइन डालें (जैसे: मोदी लाइव सभा)">
     <button onclick="fetchImages()">इमेज खोजें</button>
 
@@ -24,15 +25,16 @@
         async function fetchImages() {
             let headline = document.getElementById("newsHeadline").value;
             let container = document.getElementById("image-container");
-            container.innerHTML = "इमेज खोजी जा रही हैं, कृपया प्रतीक्षा करें...";
-
+            
             if(!headline) {
-                container.innerHTML = "कृपया कोई न्यूज़ हेडलाइन डालें!";
+                container.innerHTML = "<p class='error'>कृपया कोई न्यूज़ हेडलाइन डालें!</p>";
                 return;
             }
 
-            // यहाँ अपना Vercel वाला लाइव URL डालें
-            let apiUrl = `https://आपके-प्रोजेक्ट-का-नाम.vercel.app/get_image?query=${encodeURIComponent(headline)}`;
+            container.innerHTML = "इमेज खोजी जा रही हैं, कृपया प्रतीक्षा करें...";
+
+            // यहाँ आपका लाइव Vercel API URL सेट कर दिया गया है
+            let apiUrl = `https://news-image-tool.vercel.app/get_image?query=${encodeURIComponent(headline)}`;
 
             try {
                 let response = await fetch(apiUrl);
@@ -47,10 +49,10 @@
                         container.appendChild(imgTag);
                     });
                 } else {
-                    container.innerHTML = "इस हेडलाइन से जुड़ी कोई इमेज नहीं मिली।";
+                    container.innerHTML = "<p class='error'>इस हेडलाइन से जुड़ी कोई इमेज नहीं मिली। कुछ और लिखकर प्रयास करें।</p>";
                 }
             } catch (error) {
-                container.innerHTML = "सर्वर से कनेक्ट करने में त्रुटि आई।";
+                container.innerHTML = "<p class='error'>सर्वर से कनेक्ट करने में त्रुटि आई। कृपया थोड़ी देर बाद प्रयास करें।</p>";
                 console.error(error);
             }
         }
