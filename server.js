@@ -1,15 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const gis = require('g-i-s');
-const path = require('path'); // यह नया जोड़ा गया है
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS को इनेबल करें
 app.use(cors());
 
-// मुख्य पेज के लिए रूट - अब यह आपकी HTML फाइल लोड करेगा
+// मुख्य पेज के लिए रूट - आपकी HTML फाइल लोड करेगा
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -23,34 +21,50 @@ app.get('/api/search', async (req, res) => {
   }
 
   try {
-    // Google Images सर्च शुरू
-    gis(q, (error, results) => {
-      if (error) {
-        console.error('GIS Error:', error);
-        return res.status(500).json({ error: 'इमेज सर्च फेल हो गया' });
-      }
+    // Google Vercel को ब्लॉक कर देता है, 
+    // इसलिए हम Yahoo/Bing Images का इस्तेमाल कर रहे हैं (जो बेहतरीन और तेज़ काम करता है)
+    const searchUrl = `https://images.search.yahoo.com/search/images?p=${encodeURIComponent(q)}`;
+    
+    // Node.js के नेटिव fetch का इस्तेमाल कर रहे हैं
+    const response = await fetch(searchUrl, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+    });
 
-      // टॉप 50 इमेजेस को फॉर्मेट कर रहे हैं
-      const formattedResults = results.slice(0, 50).map(item => ({
-        image: item.url,
-        url: item.url
-      }));
+    const html = await response.text();
 
-      // रिस्पॉन्स भेज रहे हैं
-      res.json({
-        results: formattedResults,
-        total: formattedResults.length,
-        query: q
-      });
+    // HTML कोड में से इमेजेस के लिंक निकालना
+    const regex = /<img[^>]+src="([^">]+)"/g;
+    let match;
+    let images = [];
+
+    while ((match = regex.exec(html)) !== null) {
+        let imgUrl = match[1];
+        // सिर्फ असली न्यूज़ इमेजेस लेना (वेबसाइट के लोगो आदि को हटाना)
+        if (imgUrl.startsWith('http') && !imgUrl.includes('yahoo.com') && !imgUrl.includes('clear.gif')) {
+            images.push({ image: imgUrl, url: imgUrl });
+        }
+    }
+
+    // एक जैसी (Duplicate) इमेजेस को हटाना
+    const uniqueImages = Array.from(new Set(images.map(a => a.image)))
+        .map(image => ({ image: image, url: image }));
+
+    // रिस्पॉन्स भेजना
+    res.json({
+      results: uniqueImages.slice(0, 50), // टॉप 50 इमेजेस
+      total: uniqueImages.slice(0, 50).length,
+      query: q
     });
 
   } catch (err) {
     console.error('Server Error:', err);
-    res.status(500).json({ error: 'सर्वर एरर', details: err.message });
+    res.status(500).json({ error: 'सर्वर एरर, कृपया थोड़ी देर बाद प्रयास करें।' });
   }
 });
 
-// Vercel के लिए ऐप को एक्सपोर्ट करना ज़रूरी है
+// Vercel के लिए ऐप को एक्सपोर्ट करना
 module.exports = app;
 
 // लोकल टेस्टिंग के लिए
