@@ -1,21 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const gis = require('g-i-s');
+const path = require('path'); // यह नया जोड़ा गया है
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS को इनेबल करें ताकि आपकी वेबसाइट इसे कॉल कर सके
+// CORS को इनेबल करें
 app.use(cors());
 
-// मुख्य पेज के लिए रूट
+// मुख्य पेज के लिए रूट - अब यह आपकी HTML फाइल लोड करेगा
 app.get('/', (req, res) => {
-  res.send('✅ Aryan News Tech API is Live!');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // इमेज सर्च के लिए मुख्य API रूट
 app.get('/api/search', async (req, res) => {
-  // URL से 'q' पैरामीटर निकाल रहे हैं (जैसे: ?q=modi)
   const q = req.query.q;
 
   if (!q) {
@@ -53,7 +53,7 @@ app.get('/api/search', async (req, res) => {
 // Vercel के लिए ऐप को एक्सपोर्ट करना ज़रूरी है
 module.exports = app;
 
-// लोकल टेस्टिंग के लिए (Vercel पर इसकी ज़रूरत नहीं पड़ती पर रखने में कोई बुराई नहीं है)
+// लोकल टेस्टिंग के लिए
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
